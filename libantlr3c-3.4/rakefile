@@ -1,0 +1,74 @@
+require 'rake/clean'
+require 'pathname'
+
+require "#{ENV['CORTO_BUILD']}/common"
+
+# Provides three tasks:
+# - :configure, creates a makefile
+# - :build_, creates binaries
+# - :install_, copies binaries to lib/ and headers to include/
+# - :default, all of the above
+
+module Antlr3Rake
+    def self.antlr3c_prefix
+        Pathname.new(__FILE__).dirname.dirname.to_s
+    end
+
+    def self.include_dir
+        Pathname.new(self.antlr3c_prefix).join("include").to_s
+    end
+
+    def self.lib_dir
+        Pathname.new(self.antlr3c_prefix).join("lib").join("#{CORTO_PLATFORM}").to_s
+    end
+end
+
+directory Antlr3Rake::lib_dir
+directory Antlr3Rake::include_dir
+
+file "Makefile" do
+    params = []
+    params << "--enable-64bit" if `uname -m`.chomp == "x86_64"
+    params << "--prefix=#{Antlr3Rake::antlr3c_prefix}"
+    params << "--libdir=#{Antlr3Rake::lib_dir}"
+    params << "--includedir=#{Antlr3Rake::include_dir}"
+    sh "./configure #{params.join(' ')}"
+end
+
+CLEAN.include FileList.new("./.deps")
+CLEAN.include %w(
+    Makefile
+    config.log
+    config.status
+    libtool
+    stamp-h1
+)
+CLEAN.include FileList.new("./.libs")
+CLEAN.include FileList.new("./*.lo")
+CLEAN.include FileList.new("./*.la")
+
+task :configure => "Makefile"
+
+file "libantlr3c.la" => "Makefile" do
+    sh "make"
+end
+
+directory Antlr3Rake::include_dir
+
+task :build_ => ["libantlr3c.la", Antlr3Rake::include_dir]
+
+file Antlr3Rake::lib_dir => "libantlr3c.la"
+
+task :install_ => Antlr3Rake::lib_dir
+task :install_ => "#{Antlr3Rake::lib_dir}/libantlr3c.so"
+
+file "#{Antlr3Rake::lib_dir}/libantlr3c.so" do
+    sh "make install"
+end
+
+task :install_ => "#{Antlr3Rake::lib_dir}/libantlr3c.so"
+
+CLOBBER.include Antlr3Rake::lib_dir
+CLOBBER.include Antlr3Rake::include_dir
+
+task :default => "#{Antlr3Rake::lib_dir}/libantlr3c.so"
