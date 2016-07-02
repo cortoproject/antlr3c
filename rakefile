@@ -3,4 +3,8 @@ PACKAGE = 'antlr3'
 
 NOCORTO = true
 
+INCLUDE = ["$(CORTO_INCLUDE)"]
+
+LINK_PUBLIC = ["$(CORTO_LIB)/antlr3c"]
+
 require "#{ENV['CORTO_BUILD']}/package"
