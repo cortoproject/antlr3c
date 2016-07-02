@@ -1,0 +1,4 @@
+#package ::test
+
+test::Suite TestAntlr3::
+    void test()
