@@ -6,7 +6,7 @@ require "#{ENV['CORTO_BUILD']}/common"
 # Provides three tasks:
 # - :configure, creates a makefile
 # - :build_, creates binaries
-# - :install_, copies binaries to lib/ and headers to include/
+# - :install, copies binaries to lib/ and headers to include/
 # - :default, all of the above
 
 module Antlr3Rake
@@ -59,14 +59,26 @@ task :build_ => ["libantlr3c.la", Antlr3Rake::include_dir]
 
 file Antlr3Rake::lib_dir => "libantlr3c.la"
 
-task :install_ => Antlr3Rake::lib_dir
-task :install_ => "#{Antlr3Rake::lib_dir}/libantlr3c.so"
-
 file "#{Antlr3Rake::lib_dir}/libantlr3c.so" do
     sh "make install"
 end
 
-task :install_ => "#{Antlr3Rake::lib_dir}/libantlr3c.so"
+install_deps = [
+    "#{Antlr3Rake::lib_dir}/libantlr3c.so",
+    "#{Antlr3Rake::include_dir}/antlr3.h",
+]
+
+install_deps.each do |f|
+    file f do
+        sh "make install"
+    end
+end
+
+task :install => install_deps + [Antlr3Rake::lib_dir, Antlr3Rake::include_dir]
+
+puts install_deps
+puts install_deps
+puts install_deps
 
 CLOBBER.include Antlr3Rake::lib_dir
 CLOBBER.include Antlr3Rake::include_dir
