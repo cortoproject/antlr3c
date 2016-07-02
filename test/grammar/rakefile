@@ -9,9 +9,6 @@ require "#{ENV['CORTO_BUILD']}/common"
 
 ANTLR_NAME = "antlr-3.4-complete-no-antlrv2.jar"
 ANTLR_PATH = Pathname.new(corto_section("antlr3", "etc")).join(ANTLR_NAME).to_s
-puts ANTLR_PATH
-puts ANTLR_PATH
-puts ANTLR_PATH
 
 GRAMMAR_NAME = "TestGrammar"
 
