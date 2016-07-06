@@ -1,0 +1,34 @@
+require 'rake/clean'
+require 'pathname'
+
+# TODO remove this dependency in common
+TARGETDIR = ""
+
+require "#{ENV['CORTO_BUILD']}/common"
+
+
+ANTLR_NAME = "antlr-3.4-complete-no-antlrv2.jar"
+ANTLR_PATH = Pathname.new(corto_section("antlr3", "etc")).join(ANTLR_NAME).to_s
+
+GRAMMAR_NAME = "TestGrammar"
+
+GRAMMAR_TARGET = Pathname.new(__FILE__).dirname.dirname.to_s
+GRAMMAR_SRC = Pathname.new(GRAMMAR_TARGET).join("src").to_s
+GENERATED_SUFFIXES = %w(Lexer.h Lexer.c Parser.h Parser.c .tokens)
+GENERATED_FILES = GENERATED_SUFFIXES.map do |suffix|
+  Pathname.new(GRAMMAR_SRC).join("#{GRAMMAR_NAME}#{suffix}").to_s
+end
+
+CLEAN.include GENERATED_FILES
+
+task :build => GENERATED_FILES
+
+GENERATED_FILES.each do |target|
+  ENV["CLASSPATH"] = "#{ANTLR_PATH}:#{ENV['CLASSPATH']}"
+  file target => "#{GRAMMAR_NAME}.g" do
+    puts "java org.antlr.Tool #{GRAMMAR_NAME}.g -o #{GRAMMAR_SRC}"
+    sh "java org.antlr.Tool #{GRAMMAR_NAME}.g -o #{GRAMMAR_SRC}"
+  end
+end
+
+task :default => :build
