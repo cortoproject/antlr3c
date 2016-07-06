@@ -1,17 +1,26 @@
 require 'rake/clean'
 require 'pathname'
 
+# For common.rb
+TARGETDIR = ""
+
 require "#{ENV['CORTO_BUILD']}/common"
 
 # Provides three tasks:
 # - :configure, creates a makefile
-# - :build_, creates binaries
+# - :build, creates binaries
 # - :install, copies binaries to lib/ and headers to include/
 # - :default, all of the above
+
+PACKAGE = 'antlr3'
 
 module Antlr3Rake
     def self.antlr3c_prefix
         Pathname.new(__FILE__).dirname.dirname.to_s
+    end
+
+    def self.configure
+        Pathname.new(__FILE__).dirname.join("configure").to_s
     end
 
     def self.include_dir
@@ -27,12 +36,14 @@ directory Antlr3Rake::lib_dir
 directory Antlr3Rake::include_dir
 
 file "Makefile" do
+    soname = corto_section(PACKAGE, "lib") + "/libantlr3c.so"
+    cflags = "-Wl,-soname,#{soname}"
     params = []
-    params << "--enable-64bit" if `uname -m`.chomp == "x86_64"
+    params << "--enable-64bit" if `uname -m`.strip == "x86_64"
     params << "--prefix=#{Antlr3Rake::antlr3c_prefix}"
     params << "--libdir=#{Antlr3Rake::lib_dir}"
     params << "--includedir=#{Antlr3Rake::include_dir}"
-    sh "./configure #{params.join(' ')}"
+    sh "#{Antlr3Rake::configure} #{params.join(' ')}"
 end
 
 CLEAN.include FileList.new("./.deps")
@@ -55,13 +66,9 @@ end
 
 directory Antlr3Rake::include_dir
 
-task :build_ => ["libantlr3c.la", Antlr3Rake::include_dir]
+task :build => ["libantlr3c.la", Antlr3Rake::include_dir]
 
 file Antlr3Rake::lib_dir => "libantlr3c.la"
-
-file "#{Antlr3Rake::lib_dir}/libantlr3c.so" do
-    sh "make install"
-end
 
 install_deps = [
     "#{Antlr3Rake::lib_dir}/libantlr3c.so",
@@ -76,11 +83,7 @@ end
 
 task :install => install_deps + [Antlr3Rake::lib_dir, Antlr3Rake::include_dir]
 
-puts install_deps
-puts install_deps
-puts install_deps
-
 CLOBBER.include Antlr3Rake::lib_dir
 CLOBBER.include Antlr3Rake::include_dir
 
-task :default => "#{Antlr3Rake::lib_dir}/libantlr3c.so"
+task :default => :install
