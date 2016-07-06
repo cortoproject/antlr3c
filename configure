@@ -1,0 +1,4 @@
+#!/bin/bash
+
+libantlr3c_path=$CORTO_HOME/lib/corto/$CORTO_VERSION/antlr3
+export LD_LIBRARY_PATH="$libantlr3c_path:$LD_LIBRARY_PATH"
