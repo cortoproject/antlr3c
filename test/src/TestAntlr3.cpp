@@ -20,5 +20,11 @@ corto_void _test_TestAntlr3_test(
 {
 /* $begin(test/TestAntlr3/test) */
     test_assert(1 == 1);
+    pANTLR3_INPUT_STREAM input = antlr3StringStreamNew(
+        (pANTLR3_UINT8)"HELLO WORLD",
+        ANTLR3_ENC_UTF8,
+        strlen("HELLO WORLD"),
+        (pANTLR3_UINT8)"mock_input_file"
+    );
 /* $end */
 }
