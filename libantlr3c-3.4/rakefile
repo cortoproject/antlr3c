@@ -24,7 +24,7 @@ module Antlr3Rake
     end
 
     def self.include_dir
-        Pathname.new(self.antlr3c_prefix).join("include").to_s
+        Pathname.new(self.antlr3c_prefix).join("include").join("#{CORTO_PLATFORM}").to_s
     end
 
     def self.lib_dir
