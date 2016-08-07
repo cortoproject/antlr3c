@@ -21,6 +21,7 @@ install:
   - source corto/configure
   - source antlr3c/configure
   - rake
+  - cd antlr3c
 
 script:
   - rake test
