@@ -5,6 +5,7 @@ NOCORTO = true
 
 INCLUDE = ["$(CORTO_INCLUDE)"]
 
-LINK_PUBLIC = ["$(CORTO_LIB)/antlr3c"]
+LIB_PUBLIC = ["antlr3c"]
+LINK_PUBLIC = []
 
 require "#{ENV['CORTO_BUILD']}/package"
